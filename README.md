@@ -6,8 +6,8 @@ A simple way to start our day as developers
 # How to use
 Enter the corresponding values in the variables:
 
-Name of our main development branch\n
+Name of our main development branch  
 $mainBrach = "MyMainDevBranch"  
 
-Path to our local repository\n
+Path to our local repository  
 $repoPath = "C:\MyRepoPath"  
