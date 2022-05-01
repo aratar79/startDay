@@ -82,7 +82,7 @@ if ($mergeResult -like '*Automatic merge failed; fix conflicts*') {
 else {
     Write-Output $mergeResult
     $decisionPush = $Host.UI.PromptForChoice("Quieres enviar(push) los cambios", "Continuar?", @('&Yes'; '&No'), 1)
-    if (($decisionContinue) -eq 0) {
+    if (($decisionPush) -eq 0) {
         git push
     }
 }
