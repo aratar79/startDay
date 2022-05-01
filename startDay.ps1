@@ -36,7 +36,7 @@ if (($decisionContinue) -eq 1) {
 }
 
 Write-Output "Comprobando cambios en TU BRANCH...."
-if (git status --porcelain | Where-Object { $_ -match '^\?\?'}) {
+if ((git status --porcelain | Where-Object { $_ -match '^\?\?'}) -or (git status --porcelain | Where-Object { $_ -match '[\s\S]+'})) {if (git status --porcelain | Where-Object { $_ -match '^\?\?'}) {
     Write-Output "Hay cambios por insertar:"
     Write-Host $("-" * 50)
     git status -s
@@ -74,7 +74,18 @@ git pull
 Write-Host $("-" * 50)
 git checkout $currentBranch
 Write-Host $("-" * 50)
-git merge $mainBrach
+$mergeResult = git merge $mainBrach
+if ($mergeResult -like '*Automatic merge failed; fix conflicts*') {
+    Write-Output $mergeResult
+    Write-Host "`nHay conflictos por arreglar, solucionalos y haz commit" -BackgroundColor Red -ForegroundColor Black
+}
+else {
+    Write-Output $mergeResult
+    $decisionPush = $Host.UI.PromptForChoice("Quieres enviar(push) los cambios", "Continuar?", @('&Yes'; '&No'), 1)
+    if (($decisionContinue) -eq 0) {
+        git push
+    }
+}
 Write-Host $("-" * 50)
 Set-Location -Path $currentPath
 Read-Host('Enter para salir') 
