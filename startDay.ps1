@@ -36,7 +36,13 @@ if (($decisionContinue) -eq 1) {
 }
 
 Write-Output "Comprobando cambios en TU BRANCH...."
-if ((git status --porcelain | Where-Object { $_ -match '^\?\?'}) -or (git status --porcelain | Where-Object { $_ -match '[\s\S]+'})) {if (git status --porcelain | Where-Object { $_ -match '^\?\?'}) {
+$haveChanges = git status --porcelain
+# if (($haveChanges = git status --porcelain | Where-Object { $_ -match '^\?\?'}) -or (git status --porcelain | Where-Object { $_ -match '[\s\S]+'})) {
+if ($haveChanges -match '^\?\?' -or $haveChanges -match '[\s\S]+') {
+    if ($haveChanges -like '*UU*') {
+        Write-Host "`nHay conflictos por arreglar, solucionalos y haz commit" -BackgroundColor Red -ForegroundColor Black
+        exit
+    }
     Write-Output "Hay cambios por insertar:"
     Write-Host $("-" * 50)
     git status -s
@@ -61,7 +67,7 @@ else {
         $haveCommits = $false
     }
 }
-if(!$haveCommits) {Write-Output "No hay commits pendientes de subir."}
+if (!$haveCommits) { Write-Output "No hay commits pendientes de subir." }
 Write-Output "continuamos...."
 Write-Host $("-" * 50)
 git checkout $mainBrach
@@ -79,6 +85,10 @@ if ($mergeResult -like '*Automatic merge failed; fix conflicts*') {
     Write-Output $mergeResult
     Write-Host "`nHay conflictos por arreglar, solucionalos y haz commit" -BackgroundColor Red -ForegroundColor Black
 }
+elseif ($mergeResult -like '*Already up to date.*') {
+    Write-Output $mergeResult
+    Write-Host "`nNo hay cambios que fusionar " -BackgroundColor Green -ForegroundColor Black
+}
 else {
     Write-Output $mergeResult
     $decisionPush = $Host.UI.PromptForChoice("Quieres enviar(push) los cambios", "Continuar?", @('&Yes'; '&No'), 1)
@@ -89,6 +99,7 @@ else {
 Write-Host $("-" * 50)
 Set-Location -Path $currentPath
 Read-Host('Enter para salir') 
+
 
 
 
